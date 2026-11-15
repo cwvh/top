@@ -25,10 +25,13 @@ top-tcc.exe: main.c $(SRC) kernel32.def
 top-test.exe: test.c $(SRC)
 	$(CC) $(CFLAGS) $(DEBUG) -o $@ test.c $(LDLIBS)
 
+top-test-tcc.exe: test.c $(SRC) kernel32.def
+	$(TCC) -DDEBUG -nostdlib -Wl,-e,mainCRTStartup -Wl,-subsystem=console -o $@ test.c -L. -lkernel32 -lntdll
+
 test: top-test.exe
 	./top-test.exe
 
 clean:
-	rm -f top.exe top-debug.exe top-tcc.exe top-test.exe kernel32.def
+	rm -f top.exe top-debug.exe top-tcc.exe top-test.exe top-test-tcc.exe kernel32.def
 
 .PHONY: test clean
