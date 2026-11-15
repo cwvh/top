@@ -147,16 +147,6 @@ static b32 icontains(Str hay, Str needle) {
     return 0;
 }
 
-static Str clone(Arena *a, Str s) {
-    Str r = {0};
-    r.data = new(a, s.len, u8);
-    r.len  = s.len;
-    if (s.len) {
-        memcpy(r.data, s.data, (uz)s.len);
-    }
-    return r;
-}
-
 // Parse a non-negative decimal integer that fits in i32.
 static b32 parseint(Str s, i32 *v) {
     if (!s.len) {
@@ -369,13 +359,6 @@ static void print(Output *o, Str s) {
 
 static void printc(Output *o, u8 c) {
     print(o, (Str){&c, 1});
-}
-
-// Print c repeated n times.
-static void printpad(Output *o, u8 c, iz n) {
-    for (iz i = 0; i < n; i++) {
-        printc(o, c);
-    }
 }
 
 static void printi64(Output *o, i64 v) {
