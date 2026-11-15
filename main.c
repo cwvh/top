@@ -79,10 +79,31 @@ static b32 os_kill(u32 pid) {
     return r;
 }
 
+// Carve a fixed-size arena off another without zeroing it.
+static Arena carve(Arena *a, iz size) {
+#ifdef DEBUG
+    // Keep arenas page-aligned so a guard page never overlaps a neighbor.
+    a->beg = (u8 *)(((uptr)a->beg + PAGE - 1) & ~(uptr)(PAGE - 1));
+    assert(size%PAGE == 0);
+#endif
+    assert(size <= a->end - a->beg);
+    Arena r = {a->beg, a->beg+size};
+    a->beg += size;
+    return r;
+}
+
+// Like newoutput(), but the buffers are carved rather than zeroed: zeroing
+// would make every page resident, and a frame uses only a few KB of them.
+// wbuf goes first since carve() doesn't align.
 static Output *newstdout(Arena *a, i32 std, iz cap) {
-    uptr h    = GetStdHandle(std);
-    u32  mode = 0;
-    return newoutput(a, h, GetConsoleMode(h, &mode), cap);
+    u32     mode = 0;
+    Output *o    = new(a, 1, Output);
+    o->handle    = GetStdHandle(std);
+    o->console   = GetConsoleMode(o->handle, &mode);
+    o->wbuf      = o->console ? (c16 *)carve(a, cap*(iz)sizeof(c16)).beg : 0;
+    o->buf       = carve(a, cap).beg;
+    o->cap       = cap;
+    return o;
 }
 
 
@@ -328,19 +349,6 @@ static i32 runtui(Ui *ui, Sampler *smp, Output *out, Output *err, Arena scratch)
     SetConsoleMode(hin, inmode);
     SetConsoleMode(out->handle, outmode);
     return 0;
-}
-
-// Carve a fixed-size arena off another without zeroing it.
-static Arena carve(Arena *a, iz size) {
-#ifdef DEBUG
-    // Keep arenas page-aligned so a guard page never overlaps a neighbor.
-    a->beg = (u8 *)(((uptr)a->beg + PAGE - 1) & ~(uptr)(PAGE - 1));
-    assert(size%PAGE == 0);
-#endif
-    assert(size <= a->end - a->beg);
-    Arena r = {a->beg, a->beg+size};
-    a->beg += size;
-    return r;
 }
 
 // Debug allocations cost at least 8 KiB each (data page plus guard), so
