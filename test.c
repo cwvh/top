@@ -1163,7 +1163,7 @@ static void settle(World *w) {
     capt.len = 0;
 }
 
-static Str captured() {
+static Str captured(void) {
     ctx.frame    = capt.buf;
     ctx.framelen = capt.len;
     return (Str){capt.buf, capt.len};

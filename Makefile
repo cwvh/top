@@ -1,15 +1,20 @@
 CC       = gcc
-CFLAGS   = -std=c11 -fno-asynchronous-unwind-tables -nostartfiles \
+CFLAGS   = -std=c11 -nostdlib \
            -Wall -Wextra -Wconversion -Wno-sign-conversion -Wno-unused-function \
-           -Wshadow -Wnull-dereference -Wcast-align -Wdouble-promotion
+           -Wdouble-promotion -Wshadow -Wnull-dereference -Wstrict-prototypes -Wvla
+# Release only: debuggers and profilers need the unwind tables to walk the
+# stack on x64 Windows.
+RELEASE  = -O2 -s -fno-asynchronous-unwind-tables
 DEBUG    = -g3 -DDEBUG -fsanitize=undefined -fsanitize=bounds-strict \
            -fsanitize-trap -ftrivial-auto-var-init=pattern
-LDLIBS   = -lkernel32 -lntdll
+# libgcc for ___chkstk_ms, which frames over a page call. -nostdlib keeps
+# msvcrt out, so a stray libc call is a link error rather than an import.
+LDLIBS   = -lkernel32 -lntdll -lgcc
 TCC      = tcc
 SRC      = base.c win32.c sample.c ui.c
 
 top.exe: main.c $(SRC)
-	$(CC) $(CFLAGS) -O2 -s -o $@ main.c $(LDLIBS)
+	$(CC) $(CFLAGS) $(RELEASE) -o $@ main.c $(LDLIBS)
 
 top-debug.exe: main.c $(SRC)
 	$(CC) $(CFLAGS) $(DEBUG) -o $@ main.c $(LDLIBS)
