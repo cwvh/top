@@ -2027,7 +2027,7 @@ static Args getargs(Arena *perm) {
     Args r = {0};
     r.argv = new(perm, s.len/2 + 1, Str);
     for (iz i = 0;;) {
-        for (; i<s.len && (s.data[i]==' ' || s.data[i]=='\t'); i++) {}
+        for (; i<s.len && (at(s, i)==' ' || at(s, i)=='\t'); i++) {}
         if (i == s.len) {
             break;
         }
@@ -2035,7 +2035,7 @@ static Args getargs(Arena *perm) {
         u8 *beg    = s.data + i;
         u8 *out    = beg;
         for (; i < s.len; i++) {
-            u8 c = s.data[i];
+            u8 c = at(s, i);
             if (c == '"') {
                 quoted = !quoted;
             } else if (!quoted && (c==' ' || c=='\t')) {

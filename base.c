@@ -109,6 +109,12 @@ typedef struct {
 // size is not its length) a compile error.
 #define S(s) (Str){(u8 *)"" s "", sizeof(s)-1}
 
+// Bounds-checked read, for parsers that index rather than walk a string.
+static u8 at(Str s, iz i) {
+    assert(i >= 0 && i < s.len);
+    return s.data[i];
+}
+
 static Str span(u8 *beg, u8 *end) {
     return (Str){beg, end - beg};
 }
@@ -158,10 +164,10 @@ static b32 parseint(Str s, i32 *v) {
     }
     i64 r = 0;
     for (iz i = 0; i < s.len; i++) {
-        if (s.data[i]<'0' || s.data[i]>'9') {
+        if (at(s, i)<'0' || at(s, i)>'9') {
             return 0;
         }
-        r = r*10 + (s.data[i] - '0');
+        r = r*10 + (at(s, i) - '0');
         if (r > 0x7fffffff) {
             return 0;
         }
@@ -178,19 +184,19 @@ static b32 parsedelay(Str s, i32 *ms) {
     i64 scale  = 1000;
     b32 digits = 0;
     iz  i      = 0;
-    for (; i<s.len && s.data[i]>='0' && s.data[i]<='9'; i++) {
+    for (; i<s.len && at(s, i)>='0' && at(s, i)<='9'; i++) {
         digits = 1;
-        whole  = whole*10 + (s.data[i] - '0');
+        whole  = whole*10 + (at(s, i) - '0');
         if (whole > 1000000) {
             return 0;
         }
     }
-    if (i<s.len && s.data[i]=='.') {
-        for (i++; i<s.len && s.data[i]>='0' && s.data[i]<='9'; i++) {
+    if (i<s.len && at(s, i)=='.') {
+        for (i++; i<s.len && at(s, i)>='0' && at(s, i)<='9'; i++) {
             digits = 1;
             if (scale > 1) {
                 scale /= 10;
-                frac  += (s.data[i] - '0') * scale;
+                frac  += (at(s, i) - '0') * scale;
             }
         }
     }

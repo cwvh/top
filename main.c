@@ -104,7 +104,7 @@ static Args getargs(Arena *perm) {
     Args r = {0};
     r.argv = new(perm, s.len/2 + 1, Str);
     for (iz i = 0;;) {
-        for (; i<s.len && (s.data[i]==' ' || s.data[i]=='\t'); i++) {}
+        for (; i<s.len && (at(s, i)==' ' || at(s, i)=='\t'); i++) {}
         if (i == s.len) {
             break;
         }
@@ -112,7 +112,7 @@ static Args getargs(Arena *perm) {
         u8 *beg    = s.data + i;
         u8 *out    = beg;  // unquote in place
         for (; i < s.len; i++) {
-            u8 c = s.data[i];
+            u8 c = at(s, i);
             if (c == '"') {
                 quoted = !quoted;
             } else if (!quoted && (c==' ' || c=='\t')) {
@@ -136,7 +136,7 @@ typedef struct {
 static i32 parseargs(Config *conf, Args args, Output *err) {
     for (i32 i = 1; i < args.argc; i++) {
         Str arg = args.argv[i];
-        if (arg.len<2 || arg.data[0]!='-') {
+        if (arg.len<2 || at(arg, 0)!='-') {
             print(err, S("top: unexpected argument: "));
             print(err, arg);
             print(err, S("\n"));
@@ -144,7 +144,7 @@ static i32 parseargs(Config *conf, Args args, Output *err) {
             return 2;
         }
 
-        u8  flag  = arg.data[1];
+        u8  flag  = at(arg, 1);
         Str value = {0};
         if (flag=='d' || flag=='n') {
             if (arg.len > 2) {
