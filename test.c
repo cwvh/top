@@ -2074,11 +2074,14 @@ static b32 parseu64(Str s, u64 *v) {
     return 1;
 }
 
-static char const usage[] =
-"usage: top-test [-s SEED] [-n ITERS] [-i START]\n"
-"  -s SEED   random seed, decimal or 0x hex (default 0x5eed)\n"
-"  -n ITERS  iterations to run (default 1500)\n"
-"  -i START  first iteration number, to replay a failure (default 0)\n";
+static Str usage(void) {
+    return S(
+        "usage: top-test [-s SEED] [-n ITERS] [-i START]\n"
+        "  -s SEED   random seed, decimal or 0x hex (default 0x5eed)\n"
+        "  -n ITERS  iterations to run (default 1500)\n"
+        "  -i START  first iteration number, to replay a failure (default 0)\n"
+    );
+}
 
 enum {
     TOTAL_SIZE   = (iz)128<<20,
@@ -2140,7 +2143,7 @@ static i32 run(Arena all) {
             print(ctx.out, S("top-test: bad argument: "));
             print(ctx.out, arg);
             print(ctx.out, S("\n"));
-            print(ctx.out, S(usage));
+            print(ctx.out, usage());
             flush(ctx.out);
             return 2;
         }

@@ -7,13 +7,15 @@
 #include "sample.c"
 #include "ui.c"
 
-// Note: no global Str objects. Without a CRT, dynamic initializers never run.
-static char const usage[] =
-"usage: top [-b] [-d SECS] [-n N]\n"
-"  -b       batch mode: print plain-text snapshots to stdout\n"
-"  -d SECS  refresh delay in seconds (default 2, minimum 0.1)\n"
-"  -n N     batch mode: exit after N snapshots (default: run forever)\n"
-"  -h       print this message\n";
+static Str usage(void) {
+    return S(
+        "usage: top [-b] [-d SECS] [-n N]\n"
+        "  -b       batch mode: print plain-text snapshots to stdout\n"
+        "  -d SECS  refresh delay in seconds (default 2, minimum 0.1)\n"
+        "  -n N     batch mode: exit after N snapshots (default: run forever)\n"
+        "  -h       print this message\n"
+    );
+}
 
 
 // Platform
@@ -138,7 +140,7 @@ static i32 parseargs(Config *conf, Args args, Output *err) {
             print(err, S("top: unexpected argument: "));
             print(err, arg);
             print(err, S("\n"));
-            print(err, S(usage));
+            print(err, usage());
             return 2;
         }
 
@@ -180,13 +182,13 @@ static i32 parseargs(Config *conf, Args args, Output *err) {
             }
             break;
         case 'h':
-            print(err, S(usage));
+            print(err, usage());
             return 1;
         default:
             print(err, S("top: unknown option: "));
             print(err, arg);
             print(err, S("\n"));
-            print(err, S(usage));
+            print(err, usage());
             return 2;
         }
     }

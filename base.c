@@ -104,8 +104,10 @@ typedef struct {
     iz  len;
 } Str;
 
-// String literals only: the length comes from the array size.
-#define S(s) (Str){(u8 *)s, sizeof(s)-1}
+// String literals only: the length comes from the array size, and the
+// empty literals on each side make anything else (such as a pointer, whose
+// size is not its length) a compile error.
+#define S(s) (Str){(u8 *)"" s "", sizeof(s)-1}
 
 static Str span(u8 *beg, u8 *end) {
     return (Str){beg, end - beg};
