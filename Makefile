@@ -20,13 +20,13 @@ kernel32.def:
 	$(TCC) -impdef kernel32.dll -o $@
 
 top-tcc.exe: main.c $(SRC) kernel32.def
-	$(TCC) -nostdlib -Wl,-e,mainCRTStartup -Wl,-subsystem=console -o $@ main.c -L. -lkernel32 -lntdll
+	$(TCC) -nostdlib -Wl,-e,mainCRTStartup -Wl,-subsystem=console -o $@ main.c -L. -lkernel32 -ltcc1 -lntdll
 
 top-test.exe: test.c $(SRC)
 	$(CC) $(CFLAGS) $(DEBUG) -o $@ test.c $(LDLIBS)
 
 top-test-tcc.exe: test.c $(SRC) kernel32.def
-	$(TCC) -DDEBUG -nostdlib -Wl,-e,mainCRTStartup -Wl,-subsystem=console -o $@ test.c -L. -lkernel32 -lntdll
+	$(TCC) -DDEBUG -nostdlib -Wl,-e,mainCRTStartup -Wl,-subsystem=console -o $@ test.c -L. -lkernel32 -ltcc1 -lntdll
 
 test: top-test.exe
 	./top-test.exe

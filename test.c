@@ -804,8 +804,7 @@ static Snapshot *gensnap(Arena *a, u64 *r, i32 ncpu, iz nprocs, b32 shared) {
     s->procs  = new(a, nprocs, ProcInfo);
     s->nprocs = nprocs;
     u8 *pool  = shared ? new(a, nprocs*48, u8) : 0;
-    // Static, not a stack array: tcc's __chkstk mangles frames over a page.
-    static u8 tmp[4096 + 16];
+    u8  tmp[4096 + 16];
     i64 sumt = 0;
     i64 sumh = 0;
     for (iz i = 0; i < nprocs; i++) {
